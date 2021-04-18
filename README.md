@@ -1,2 +1,2 @@
-# rest_api_nodejs_mysql
+# REST API - NODE JS, EXPRESS, MYSQL, JWT TOKEN
 REST APIs using node js, express, mysql
