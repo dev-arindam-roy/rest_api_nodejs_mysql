@@ -1,0 +1,30 @@
+{
+  "name": "rest_api_node_express_mysql",
+  "version": "1.0.0",
+  "description": "REST APIs using node js, express, mysql",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "keywords": [
+    "rest",
+    "api",
+    "node",
+    "js",
+    "express",
+    "mysql"
+  ],
+  "author": "Arindam Roy",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
