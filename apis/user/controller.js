@@ -1,48 +1,63 @@
 const userService = require("./service");
+const appError = require("../../exception/appError");
+const catchAsync = require("../../exception/catchAsync");
+const { hashSync, genSaltSync, compareSync } = require("bcrypt");
 
 module.exports = {
 
     /** CREATE NEW USER */
-    createUser: (req, res) => {
-        const requestBody = req.body;
-        let apiResponse = {};
-        apiResponse['type'] = 'error';
-        apiResponse['is_success'] = 0;
-        apiResponse['status'] = 400;
-        apiResponse['content'] = {};
+    createUser: async (req, res) => {
+        try {
+            const requestBody = req.body;
+            const salt = genSaltSync(10);
+            requestBody.password = hashSync(requestBody.password, salt);
+            const result = await userService.createUser(requestBody);
+            return res.status(200).json({success:1});
+        } catch (e) {
+            return res.status(400).json({success:0});
+        }
+        // const requestBody = req.body;
+        // const salt = genSaltSync(10);
+        // requestBody.password = hashSync(requestBody.password, salt);
 
-        userService.createUser(requestBody, (err, results) => {
-            if (err) {
-                apiResponse['message'] = {
-                    custom_error: 'error occur while creating a user',
-                    system_error: err
-                };
-                return res.status(apiResponse['status']).json(apiResponse);
-            }
+        // let apiResponse = {};
+        // apiResponse['type'] = 'error';
+        // apiResponse['is_success'] = 0;
+        // apiResponse['status'] = 400;
+        // apiResponse['content'] = {};
+        
+        // userService.createUser(requestBody, (err, results) => {
+        //     if (err) {
+        //         apiResponse['message'] = {
+        //             custom_msg: 'error occur while creating a user',
+        //             system_msg: err
+        //         };
+        //         return res.status(apiResponse['status']).json(apiResponse);
+        //     }
             
-            userService.getUserByUserId(results.insertId, (err, userData) => {
-                if (err) {
-                    apiResponse['message'] = {
-                        custom_error: 'user created but error occur while creating the user',
-                        system_error: err
-                    };
-                    return res.status(apiResponse['status']).json(apiResponse);
-                }
+        //     userService.getUserByUserId(results.insertId, (err, userData) => {
+        //         if (err) {
+        //             apiResponse['message'] = {
+        //                 custom_msg: 'user created but error occur while creating the user',
+        //                 system_msg: err
+        //             };
+        //             return res.status(apiResponse['status']).json(apiResponse);
+        //         }
 
-                userData.password = undefined;
-                apiResponse['type'] = 'success';
-                apiResponse['is_success'] = 1;
-                apiResponse['status'] = 200;
-                apiResponse['message'] = {
-                    success_message: 'user created successfully'
-                };
-                apiResponse['content'] = {
-                    user_id: results.insertId,
-                    user_info: userData
-                };
-                return res.status(apiResponse['status']).json(apiResponse);
-            });
-        });
+        //         userData.password = undefined;
+        //         apiResponse['type'] = 'success';
+        //         apiResponse['is_success'] = 1;
+        //         apiResponse['status'] = 200;
+        //         apiResponse['message'] = {
+        //             custom_msg: 'user created successfully'
+        //         };
+        //         apiResponse['content'] = {
+        //             user_id: results.insertId,
+        //             user_info: userData
+        //         };
+        //         return res.status(apiResponse['status']).json(apiResponse);
+        //     });
+        // });
     },
 
     /** GET ALL USERS */
@@ -56,8 +71,8 @@ module.exports = {
         userService.getAllUsers((err, results) => {
             if (err) {
                 apiResponse['message'] = {
-                    custom_error: 'error occur while fetching all users',
-                    system_error: err
+                    custom_msg: 'error occur while fetching all users',
+                    system_msg: err
                 };
                 return res.status(apiResponse['status']).json(apiResponse);
             }
@@ -68,7 +83,7 @@ module.exports = {
 
             if (results.length == 0) {
                 apiResponse['message'] = {
-                    custom_error: 'no users found'
+                    custom_msg: 'no users found'
                 };
                 return res.status(apiResponse['status']).json(apiResponse);
             }
@@ -78,7 +93,7 @@ module.exports = {
                 //return userData.password = null;
             });
             apiResponse['message'] = {
-                success_message: 'users list fetched successfully'
+                custom_msg: 'users list fetched successfully'
             };
             apiResponse['content'] = {
                 user_list: results,
@@ -89,43 +104,49 @@ module.exports = {
     },
 
     /** GET USERS BY USER ID */
-    getUserByUserId: (req, res) => {
+    getUserByUserId: catchAsync (async (req, res, next) => {
         const id = req.params.id;
-        let apiResponse = {};
-        apiResponse['type'] = 'error';
-        apiResponse['is_success'] = 0;
-        apiResponse['status'] = 400;
-        apiResponse['content'] = {};
+        const result = await userService.getUserByUserId(id);
+        if (!result) {
+            throw new appError('Record not found!', 404);
+        }
+        return res.status(200).json({success:1, user:result});
+        
+        // let apiResponse = {};
+        // apiResponse['type'] = 'error';
+        // apiResponse['is_success'] = 0;
+        // apiResponse['status'] = 400;
+        // apiResponse['content'] = {};
 
-        userService.getUserByUserId(id, (err, results) => {
-            if (err) {
-                apiResponse['message'] = {
-                    custom_error: 'error occur while fetching user by user id',
-                    system_error: err
-                };
-                return res.status(apiResponse['status']).json(apiResponse);
-            }
+        // userService.getUserByUserId(id, (err, results) => {
+        //     if (err) {
+        //         apiResponse['message'] = {
+        //             custom_msg: 'error occur while fetching user by user id',
+        //             system_msg: err
+        //         };
+        //         return res.status(apiResponse['status']).json(apiResponse);
+        //     }
 
-            apiResponse['type'] = 'success';
-            apiResponse['is_success'] = 1;
-            apiResponse['status'] = 200;
+        //     apiResponse['type'] = 'success';
+        //     apiResponse['is_success'] = 1;
+        //     apiResponse['status'] = 200;
 
-            if (!results) {
-                apiResponse['message'] = {
-                    custom_error: 'user not found'
-                };
-                return res.status(apiResponse['status']).json(apiResponse);
-            }
+        //     if (!results) {
+        //         apiResponse['message'] = {
+        //             custom_msg: 'user not found'
+        //         };
+        //         return res.status(apiResponse['status']).json(apiResponse);
+        //     }
 
-            results.password = undefined;
-            apiResponse['message'] = {
-                success_message: 'users found successfully'
-            };
-            apiResponse['content'] = {
-                user_info: results,
-                user_id: id
-            };
-            return res.status(apiResponse['status']).json(apiResponse);
-        });
-    }
+        //     results.password = undefined;
+        //     apiResponse['message'] = {
+        //         custom_msg: 'users found successfully'
+        //     };
+        //     apiResponse['content'] = {
+        //         user_info: results,
+        //         user_id: id
+        //     };
+        //     return res.status(apiResponse['status']).json(apiResponse);
+        // });
+    })
 };
