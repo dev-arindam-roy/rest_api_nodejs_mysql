@@ -14,6 +14,7 @@ const saveApiLogs = (requestObject, responseObject) => {
         ],
         (error, results, fields) => {
             if (error) {
+                logger.error.error(error);
                 throw new appError("Error occur while saving records in api_logs table");
             }
         }

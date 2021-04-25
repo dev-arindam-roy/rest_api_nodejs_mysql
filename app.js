@@ -5,7 +5,6 @@ const app = express();
 
 // parse request data content type application/x-www-form-rulencoded
 app.use(bodyParser.urlencoded({extended: false}));
-
 // parse request data content type application/json
 app.use(bodyParser.json());
 
@@ -15,6 +14,8 @@ const appError = require("./exception/appError");
 // logs
 const logger = require("./config/logger");
 const httpLog = require("./config/httpLog");
+
+app.use('/public', express.static('public'));
 
 // api settings
 const apiPrefix = process.env.API_PREFIX || "api";
