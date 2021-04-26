@@ -1,5 +1,6 @@
 const userService = require("./service");
 const moment = require('moment');
+const jsonWebToken = require("jsonwebtoken");
 const fs = require("fs");
 const appError = require("../../exception/appError");
 const catchAsync = require("../../exception/catchAsync");
@@ -107,6 +108,33 @@ module.exports = {
         apiResponse['isSuccess'] = 1;
         apiResponse['content'] = {
             user: result 
+        }
+        return res.status(200).json(apiResponse);
+    }),
+
+    /** LOGIN BY EMAIL-ID */
+    getLoginByEmailId: catchAsync (async (req, res, next) => {
+        console.log(req.body.email)
+        const result = await userService.loginByEmail(req.body.email);
+        if (!result) {
+            throw new appError('email and password combination incorrect', 404);
+        }
+        const checkPassword = compareSync(req.body.password, result.password);
+        if (!checkPassword) {
+            throw new appError('email and password combination incorrect', 404);
+        }
+        let payload = {
+            name: result.first_name + ' ' + result.last_name,
+            email: result.email,
+            phone: result.phone
+        };
+        const jsontoken = jsonWebToken.sign({ payload: payload }, process.env.JWT_KEY, {
+            expiresIn: "1h"
+        });
+        let apiResponse = {};
+        apiResponse['isSuccess'] = 1;
+        apiResponse['content'] = {
+            token: jsontoken 
         }
         return res.status(200).json(apiResponse);
     })

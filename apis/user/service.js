@@ -147,5 +147,19 @@ module.exports = {
                 }
             );
         });
-    }
+    },
+    loginByEmail: (email) => {
+        return new Promise ((resolve, reject) => {
+            pool.query(
+                `select * from users where email = ?`,
+                [email],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
 };
