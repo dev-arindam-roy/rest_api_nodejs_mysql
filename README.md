@@ -16,3 +16,12 @@ REST APIs using node js, express, mysql with authentication by JWT
     "path": "^0.12.7",
     "winston": "^3.3.3"
 ```
+## Also Added Frontend - client side application in -
+### 1. HTML-AJAX
+### 2. VUE3-AXIOS
+### 3. ANGULAR - comming soon
+### 4. REACT - comming soon
+
+```
+    ALL FRONTEND CLIENT SIDE APPLICATIOS ARE AVALIABLE IN THE FRONTEND FOLDER
+```
