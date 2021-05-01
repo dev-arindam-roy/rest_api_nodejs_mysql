@@ -8,6 +8,13 @@ app.use(cors());
 app.options('*', cors());
 
 /*
+var corsOptions = {
+  origin: "http://localhost:8081"
+};
+app.use(cors(corsOptions));
+*/
+
+/*
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -37,6 +44,10 @@ app.use(httpLog);
 const apiPrefix = process.env.API_PREFIX || "api";
 const apiVersion = process.env.API_VERSION || "v1";
 const apiRoot = "/" + apiPrefix + "/" + apiVersion;
+
+// login route
+const loginRoute = require("./auth/route");
+app.use(apiRoot + "/auth", loginRoute);
 
 // user routes
 const userRoute = require("./apis/user/route");

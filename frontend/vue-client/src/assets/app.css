@@ -1,0 +1,22 @@
+.full-width-row {
+    margin: 0;
+    padding: 0;
+    background-color: #cce5ff;
+}
+.full-row {
+    margin: 0;
+    padding: 0;
+}
+.no-border {
+    border: none !important;
+}
+.dev-text {
+    font-size: 12px;
+    font-style: italic;
+}
+.app-container {
+    min-height: 450px;
+}
+.c-toast-container {
+    top: 65px !important;
+}

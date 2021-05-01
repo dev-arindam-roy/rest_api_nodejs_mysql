@@ -7,14 +7,14 @@ module.exports = {
       token = token.slice(7);
       jsonWebToken.verify(token, process.env.JWT_KEY, (err, decoded) => {
         if (err) {
-            throw new appError('invalid token', 404);
+            throw new appError('invalid token', 400);
         } else {
           req.decoded = decoded;
           next();
         }
       });
     } else {
-        throw new appError('access denied! unauthorized user', 404);
+        throw new appError('access denied! unauthorized user', 400);
     }
   }
 };

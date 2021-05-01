@@ -4,9 +4,10 @@ module.exports = {
     createUser: (request) => {
         return new Promise ((resolve, reject) => {
             pool.query(
-                `insert into users(first_name, last_name, email, phone, password, sex, dob, profile_image) 
-                    values(?,?,?,?,?,?,?,?)`,
+                `insert into users(hash_id, first_name, last_name, email, phone, password, sex, dob, profile_image) 
+                    values(?,?,?,?,?,?,?,?,?)`,
                 [
+                    request.hash_id,
                     request.first_name,
                     request.last_name,
                     request.email,
@@ -28,7 +29,19 @@ module.exports = {
     getAllUsers: () => {
         return new Promise ((resolve, reject) => {
             pool.query(
-                `select * from users`,
+                `select 
+                    users.*,
+                    user_address.full_address as address,
+                    user_address.city as city,
+                    user_address.pincode as pincode,
+                    user_address.state as state,
+                    user_address.country as country,
+                    user_companies.company_name as company_name,
+                    user_companies.salary as salary
+                from users
+                    left join user_address on user_address.user_id = users.id
+                    left join user_companies on user_companies.user_id = users.id 
+                order by users.id desc`,
                 [],
                 (error, results, fields) => {
                     if (error) {
@@ -54,8 +67,8 @@ module.exports = {
                 from users
                     left join user_address on user_address.user_id = users.id
                     left join user_companies on user_companies.user_id = users.id 
-                where users.id = ?`,
-                [id],
+                where users.id = ? or users.hash_id = ?`,
+                [id, id],
                 (error, results, fields) => {
                     if (error) {
                         return reject(error);
@@ -162,4 +175,46 @@ module.exports = {
             );
         });
     },
+    deleteUser: (userId) => {
+        return new Promise ((resolve, reject) => {
+            pool.query(
+                `delete from users where id = ?`,
+                [userId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    deleteUserAddress: (userId) => {
+        return new Promise ((resolve, reject) => {
+            pool.query(
+                `delete from user_address where user_id = ?`,
+                [userId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    deleteUserCompany: (userId) => {
+        return new Promise ((resolve, reject) => {
+            pool.query(
+                `delete from user_companies where user_id = ?`,
+                [userId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    }
 };
